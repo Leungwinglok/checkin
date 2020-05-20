@@ -10,8 +10,8 @@
     <div class="block"></div>
     <div class="note" :style="note"></div>
     <el-carousel :interval="4000" type="card" height="500px">
-      <el-carousel-item v-for="(item,key) in imgList" :key="key">
-        <img class="img" :src="item.src">
+      <el-carousel-item v-for="(item,key) in files" :key="key">
+        <img class="img" :src="item">
       </el-carousel-item>
     </el-carousel>
 
@@ -27,7 +27,7 @@
     <el-table
       :data="tableData"
       :stripe="false"
-      style="width: 90%;background: transparent;color: #fdf6ec;margin: 0 auto;"
+      style="width: 100%;background: transparent;color: #fdf6ec;margin: 0 auto;"
     >
       <el-table-column fixed prop="id" label="序号" width="60" align="center" type="index"></el-table-column>
       <el-table-column fixed prop="deviceid" label="设备ID" width="180" align="center"></el-table-column>
@@ -57,8 +57,57 @@ import axios from "axios";
 
 export default {
   name: "HelloWorld",
+    data() {
+    return {
+      tableData: [],
+      imgList: [
+        // {
+        //   src: require("../assets/1.jpeg")
+        // },
+        // {
+        //   src: require("../assets/2.jpeg")
+        // },
+        // {
+        //   src: require("../assets/3.jpeg")
+        // },
+        // {
+        //   src: require("../assets/4.jpeg")
+        // },
+        // {
+        //   src: require("../assets/5.jpeg")
+        // },
+        // {
+        //   src: require("../assets/6.jpeg")
+        // }
+      ],
+      note: [
+        {
+          backgroundImage: "url(" + require("../assets/save.jpg") + ")",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "25px auto",
+          marginTop: "5px"
+        }
+      ],
+      value: new Date(),
+      files:[]
+    };
+  },
   created() {
     this.update();
+  },
+  mounted(){
+    new Promise((resolve) => {
+      this.getFiles()
+      if (this.files.length > 0) {
+        resolve()
+      }
+    }).then(() => {
+      // console.log(this.files)
+      // this.preload(this.files)
+    }).catch(() => {
+      
+    })
+
   },
   methods: {
     update() {
@@ -69,41 +118,18 @@ export default {
     },
     handlewakeup(id) {
       axios.get(`http://192.168.88.13:5000/wakedevice?deviceid=${id}`);
-    }
-  },
-  data() {
-    return {
-      tableData: [],
-      imgList: [
-        {
-          src: require("../assets/1.jpeg")
-        },
-        {
-          src: require("../assets/2.jpeg")
-        },
-        {
-          src: require("../assets/3.jpeg")
-        },
-        {
-          src: require("../assets/4.jpeg")
-        },
-        {
-          src: require("../assets/5.jpeg")
-        },
-        {
-          src: require("../assets/6.jpeg")
+    },
+   getFiles () {
+      const files = require.context('../assets/image', false, /.(png|jpg|jpeg|gif|bmp|webp)$/).keys()
+      for (let item of files) {
+        let file = require('../assets/image/' + item.split('/')[1])
+
+        // base64的不加载
+        if (file.indexOf('data:') !== 0) {
+          this.files.push(file)
         }
-      ],
-      note: [
-        {
-          backgroundImage: "url(" + require("../assets/save.jpg") + ")",
-          backgroundRepeat: "no-repeat",
-          backgroundSize: "25px auto",
-          marginTop: "5px"
-        }
-      ],
-      value: new Date()
-    };
+      }
+    },
   }
 };
 </script>
@@ -114,7 +140,8 @@ export default {
   width: 100vw;
   height: 100vh;
   background: url("../assets/save.jpg") no-repeat;
-  background-position: center;
+  /* background-position: center; */
+  background-size: cover;
   overflow: auto;
 }
 .el-carousel__item h3 {
@@ -125,11 +152,11 @@ export default {
   margin: 0;
 }
 .el-carousel__item:nth-child(2n) {
-  background-color: #99a9bf;
+  background-color: transparent;
 }
 
 .el-carousel__item:nth-child(2n + 1) {
-  background-color: #d3dce6;
+  background-color: transparent;
 }
 
 .el-table th,
@@ -139,7 +166,7 @@ export default {
 
 .img {
   width: 100%;
-  height: 600px;
+  height: 500px;
 }
 /* .el-icon-refresh{
         font-size: 40px;
@@ -183,10 +210,10 @@ export default {
 .el-table__row {
   color:white(212, 64, 19, 0.473);
 }
-.el-table__body tr:hover > td {
-  background: blueviolet;
-  color: #fff;
+ .el-table__body tr.hover-row>td { 
+   background-color: purple !important; 
 }
+ 
 /* .timetable {
         margin-left: 70%;
         font-size: 5px;
@@ -207,10 +234,10 @@ export default {
   }
   
   .el-carousel__item:nth-child(2n) {
-    background-color: #99a9bf;
+    background-color: transparent;
   }
   
   .el-carousel__item:nth-child(2n+1) {
-    background-color: #d3dce6;
+    background-color: transparent;
   }
 </style>
